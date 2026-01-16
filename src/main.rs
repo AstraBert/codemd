@@ -28,7 +28,7 @@ fn extract_code_from_markdown(
     let mut console = Console::new();
     match output_file_path {
         Some(s) => {
-            if code_content.len() > 0 {
+            if !code_content.is_empty() {
                 fs::write(s, code_content)?;
             } else {
                 console.print(
@@ -37,7 +37,7 @@ fn extract_code_from_markdown(
             }
         }
         None => {
-            if code_content.len() > 0 {
+            if !code_content.is_empty() {
                 let syntax = Syntax::new(code_content, language_code)
                     .line_numbers(true)
                     .theme("base16-ocean.dark");
