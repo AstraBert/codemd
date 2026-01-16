@@ -2,6 +2,11 @@
 name = "codemd"
 version = "0.1.0"
 edition = "2024"
+license-file = "LICENSE"
+readme = "README.md"
+repository = "https://github.com/AstraBert/codemd"
+description = "CLI tool to extract code from markdown files."
+keywords = ["markdown", "code", "codegen", "cli"]
 
 [dependencies]
 anyhow = "1.0.100"
