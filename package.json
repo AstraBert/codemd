@@ -1,6 +1,6 @@
 {
   "name": "@cle-does-things/codemd",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "CLI to download papers from arXiv.",
   "main": "start.js",
   "directories": {

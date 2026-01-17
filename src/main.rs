@@ -52,9 +52,31 @@ fn extract_code_from_markdown(
     Ok(())
 }
 
+fn execute(command: &str) -> anyhow::Result<()> {
+    let command_exec: Vec<&str> = command.split(" ").collect();
+    let main_command = command_exec[0];
+    let mut cmd = if command_exec.len() == 1 {
+        std::process::Command::new(main_command)
+            .stdin(std::process::Stdio::inherit())
+            .stdout(std::process::Stdio::inherit())
+            .stderr(std::process::Stdio::inherit())
+            .spawn()?
+    } else {
+        let cmd_slice = &command_exec[1..];
+        std::process::Command::new(main_command)
+            .args(cmd_slice)
+            .stdin(std::process::Stdio::inherit())
+            .stdout(std::process::Stdio::inherit())
+            .stderr(std::process::Stdio::inherit())
+            .spawn()?
+    };
+    cmd.wait()?;
+    Ok(())
+}
+
 /// Extract code from markdown based on specific language tags
 #[derive(Parser, Debug)]
-#[command(version = "0.1.0")]
+#[command(version = "0.2.0")]
 #[command(name = "codemd")]
 #[command(about, long_about = None)]
 struct Args {
@@ -69,14 +91,26 @@ struct Args {
     /// Path to the output file. If not provided, code will be printed to the console.
     #[arg(short, long, default_value = None)]
     output: Option<String>,
+
+    /// Command use to execute the code (e.g. 'python3 output.py'). Can be used only if an output file is provided
+    #[arg(short, long, default_value = None)]
+    command: Option<String>,
 }
 
 fn main() -> anyhow::Result<()> {
     let args = Args::parse();
+    let mut console = Console::new();
+    if args.output.is_none() && args.command.is_some() {
+        console.print("[red bold]Error: cannot execute code with the provided command if an output file is not provided[/]")?;
+    }
     if args.input.ends_with(".md") {
         extract_code_from_markdown(&args.language, &args.input, args.output)?;
+        if args.command.is_some() {
+            if let Some(command) = args.command {
+                execute(&command)?;
+            }
+        }
     } else {
-        let mut console = Console::new();
         console.print("[red bold]Error: input file should be markdown (.md) extension[/]")?;
     }
     Ok(())
@@ -156,5 +190,20 @@ mod test {
         let file_exists =
             fs::exists("testfiles/output.sh").expect("Should be able to check file existence");
         assert!(!file_exists);
+    }
+
+    #[test]
+    fn test_execute_no_error() {
+        assert!(execute("echo 'Hello world!'").is_ok());
+        // cat tries to access a non-existing file
+        // -> error is notified to the user throw inherited stderr
+        // -> no error in executing the function
+        assert!(execute("cat does_not_exist.txt").is_ok());
+    }
+
+    #[test]
+    fn test_execute_throws_error() {
+        // cat spelled wrong (car) -> command does not exist -> error
+        assert!(execute("car README.md").is_err());
     }
 }
