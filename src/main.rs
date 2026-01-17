@@ -105,11 +105,10 @@ fn main() -> anyhow::Result<()> {
     }
     if args.input.ends_with(".md") {
         extract_code_from_markdown(&args.language, &args.input, args.output)?;
-        if args.command.is_some() {
-            if let Some(command) = args.command {
+        if args.command.is_some()
+            && let Some(command) = args.command {
                 execute(&command)?;
             }
-        }
     } else {
         console.print("[red bold]Error: input file should be markdown (.md) extension[/]")?;
     }
