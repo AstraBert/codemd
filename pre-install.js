@@ -31,9 +31,9 @@ const features = process.env.npm_config_features
   ? `--features ${process.env.npm_config_features.replace(",", " ")}`
   : "";
 
-console.log(`Installing and compiling codemd 0.2.0 ${features} ...`);
+console.log(`Installing and compiling codemd 0.2.1 ${features} ...`);
 exec(
-  `cargo install codemd --vers 0.2.0 ${features}`,
+  `cargo install codemd --vers 0.2.1 ${features}`,
   (error, stdout, stderr) => {
     console.log(stdout);
     if (error || stderr) {

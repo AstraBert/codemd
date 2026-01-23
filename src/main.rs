@@ -76,7 +76,7 @@ fn execute(command: &str) -> anyhow::Result<()> {
 
 /// Extract code from markdown based on specific language tags
 #[derive(Parser, Debug)]
-#[command(version = "0.2.0")]
+#[command(version = "0.2.1")]
 #[command(name = "codemd")]
 #[command(about, long_about = None)]
 struct Args {
