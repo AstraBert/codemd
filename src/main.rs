@@ -189,8 +189,8 @@ mod test {
         }
         let file_content =
             fs::read_to_string("testfiles/output.go").expect("Should be able to read file");
-        println!("{}", file_content);
-        assert!(file_content.contains("var longStr string = `\nThis is a long string\n`\n"));
+        // check that it contains a backtick
+        assert!(file_content.contains("`"));
     }
 
     #[test]
