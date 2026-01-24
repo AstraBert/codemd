@@ -10,7 +10,7 @@ fn extract_code_from_markdown(
     output_file_path: Option<String>,
 ) -> anyhow::Result<()> {
     let file_content = fs::read_to_string(input_file_path)?;
-    let regex_pattern = format!(r"```{}\s*([^```]+)\s*```", language_code);
+    let regex_pattern = format!(r#"\s*```{}\s*([\s\S]*?\s*)\s*```\s*"#, language_code);
     let re = Regex::new(&regex_pattern)?;
     let mut results = vec![];
     for (_, [code]) in re
@@ -76,7 +76,7 @@ fn execute(command: &str) -> anyhow::Result<()> {
 
 /// Extract code from markdown based on specific language tags
 #[derive(Parser, Debug)]
-#[command(version = "0.2.0")]
+#[command(version = "0.2.1")]
 #[command(name = "codemd")]
 #[command(about, long_about = None)]
 struct Args {
@@ -167,6 +167,30 @@ mod test {
         assert!(file_content.contains("console.log('Hello world!');"));
         // make sure that the `ts` language tag was not counted, as it is not the target language tag
         assert!(!file_content.contains("console.error('this is an error');"));
+    }
+
+    #[test]
+    fn test_extract_code_from_markdown_backtick() {
+        let result = extract_code_from_markdown(
+            "go",
+            "testfiles/test.md",
+            Some("testfiles/output.go".to_string()),
+        );
+        match result {
+            Ok(_) => {}
+            Err(e) => {
+                eprintln!(
+                    "An error occurred while running the test: {}",
+                    e.to_string()
+                );
+                // exit the test
+                assert!(false);
+            }
+        }
+        let file_content =
+            fs::read_to_string("testfiles/output.go").expect("Should be able to read file");
+        // check that it contains a backtick
+        assert!(file_content.contains("`"));
     }
 
     #[test]
